@@ -2,6 +2,7 @@ package io.github.stefanosbou;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
@@ -18,9 +19,11 @@ public class ProxyCoreVerticle  extends AbstractVerticle {
 
    private final String PROXY_WEBSITE = "https://www.sslproxies.org/";
    Set<JsonObject> proxies;
+   private EventBus eb;
 
    @Override
    public void start(Future<Void> future) {
+      eb = vertx.eventBus();
       proxies = new HashSet<>();
       crawlProxies();
       future.complete();
@@ -70,6 +73,8 @@ public class ProxyCoreVerticle  extends AbstractVerticle {
                .put("https", https);
 
             proxies.add(proxy);
+
+            eb.send("check-status", proxy);
          }
 
       }

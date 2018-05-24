@@ -6,9 +6,18 @@ public class App {
    public static void main(String[] args) {
       Vertx vertx = Vertx.vertx();
 
-      vertx.deployVerticle(new ProxyCoreVerticle(), res -> {
+
+
+      vertx.deployVerticle(new ProxyCheckerVerticle(), res -> {
          if (res.succeeded()) {
             System.out.println("[INFO] Verticle deployed successfully");
+            vertx.deployVerticle(new ProxyCoreVerticle(), r -> {
+               if (r.succeeded()) {
+                  System.out.println("[INFO] Verticle deployed successfully");
+               } else {
+                  System.out.println("[ERROR] Verticle failed to deploy");
+               }
+            });
          } else {
             System.out.println("[ERROR] Verticle failed to deploy");
          }
