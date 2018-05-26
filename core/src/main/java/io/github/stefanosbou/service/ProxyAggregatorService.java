@@ -8,7 +8,6 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
@@ -36,7 +35,17 @@ public interface ProxyAggregatorService {
     */
    static ProxyAggregatorService createProxy(Vertx vertx, String address) {
       return ProxyHelper.createProxy(ProxyAggregatorService.class, vertx, address);
+
    }
+
+   /**
+    * Add proxy to backend.
+    *
+    * @param proxy      proxy object
+    * @param handler async result handler
+    */
+   @Fluent
+   ProxyAggregatorService addProxy(Proxy proxy, Handler<AsyncResult<Void>> handler);
 
    /**
     * Get the certain proxy from backend by id.

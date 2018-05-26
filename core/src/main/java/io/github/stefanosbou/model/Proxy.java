@@ -2,6 +2,7 @@ package io.github.stefanosbou.model;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 
 public class Proxy {
@@ -24,7 +25,7 @@ public class Proxy {
    private boolean googleEnabled;
    private boolean https;
 
-   public Job() {
+   public Job(JsonObject obj) {
       this.address_id = UUID.randomUUID().toString();
       _checkStatic();
    }
