@@ -29,6 +29,8 @@ public class App {
       proxyFuture.setHandler(ar -> {
          if (ar.succeeded()) {
             System.out.println(ar.result().toJson().encodePrettily());
+         } else {
+            System.out.println(ar.cause().getMessage());
          }
       });
 
