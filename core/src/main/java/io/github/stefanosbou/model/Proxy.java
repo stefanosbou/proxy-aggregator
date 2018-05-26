@@ -36,7 +36,11 @@ public class Proxy {
 //      _checkStatic();
    }
 
-   public Proxy(JsonObject obj) {
+   public Proxy(JsonObject json) {
+      ProxyConverter.fromJson(json, this);
+      this.id = json.getString("id");
+
+//      _checkStatic();
 
    }
 
