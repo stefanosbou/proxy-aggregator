@@ -4,9 +4,14 @@ import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.ProxyAggregatorService;
 import io.github.stefanosbou.util.DbHelper;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
+
+import java.util.Optional;
+
+import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class ProxyAggregator {
 
@@ -24,11 +29,38 @@ public class ProxyAggregator {
    }
 
    private void deployCrawlerVerticle(String crawlerName, boolean isWorker) {
-      vertx.deployVerticle(ProxySites.SSLPROXIES.getaClass(), new DeploymentOptions().setWorker(isWorker), r0 -> {
+      vertx.deployVerticle(ProxySites.valueOf(crawlerName.toUpperCase()).getaClass(), new DeploymentOptions().setWorker(isWorker), r0 -> {
          if (r0.succeeded()) {
-
+            System.out.println("Successfully deployed crawler for " + ProxySites.valueOf(crawlerName.toUpperCase()).getUrl());
+         } else {
+            // error
          }
       });
    }
 
+   public Future<Optional<Proxy>> getProxy() {
+      Future<Optional<Proxy>> future = Future.future();
+      proxyAggregatorService.getProxy(r -> {
+         if (r.succeeded()) {
+            future.complete(Optional.ofNullable(r.result()));
+         } else {
+            future.fail(r.cause());
+         }
+      });
+      return future;
+   }
+
+//
+//   public Future<Optional<Proxy>> getProxy(long id) {
+//         Future<Optional<Proxy>> future = Future.future();
+//         proxyAggregatorService.getProxy(id, r -> {
+//            if (r.succeeded()) {
+//               future.complete(Optional.ofNullable(r.result()));
+//            } else {
+//               future.fail(r.cause());
+//            }
+//         });
+//         return future;
+//   }
 }
+

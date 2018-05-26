@@ -1,4 +1,4 @@
-package io.github.stefanosbou.crawlers;
+package io.github.stefanosbou.verticles.crawlers;
 
 import io.github.stefanosbou.ProxySites;
 import io.github.stefanosbou.model.Proxy;
@@ -16,6 +16,8 @@ import org.jsoup.select.Elements;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class SslProxiesCrawlerVerticle extends AbstractVerticle {
 
@@ -76,13 +78,14 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
                .put("https", https);
 
             Proxy proxy = new Proxy(obj);
-            service.addProxy(proxy, res ->{
-               if (res.succeeded()) {
-                  System.out.println("Successfully added");
-               } else {
-                  // error
-               }
-            });
+//            proxy.save();
+//            service.addProxy(proxy, res ->{
+//               if (res.succeeded()) {
+//                  System.out.println("Successfully added");
+//               } else {
+//                  // error
+//               }
+//            });
          }
 
       }

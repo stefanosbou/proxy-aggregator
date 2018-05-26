@@ -69,14 +69,38 @@
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.0.2</version>
         </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.7.0</version>
-            <configuration>
-                <source>1.8</source>
-                <target>1.8</target>
-            </configuration>
-        </plugin>
+          <plugin>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <id>default-compile</id>
+                      <configuration>
+                          <annotationProcessors>
+                              <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+                          </annotationProcessors>
+                          <generatedSourcesDirectory>${project.basedir}/target/generated-for-docs</generatedSourcesDirectory>
+                          <compilerArgs>
+                              <arg>-Acodegen.output=${project.basedir}/target/generated-for-docs</arg>
+                              <arg>-Amaven.groupId=${project.groupId}</arg>
+                              <arg>-Amaven.artifactId=${project.artifactId}</arg>
+                              <arg>-Amaven.version=${project.version}</arg>
+                          </compilerArgs>
+                      </configuration>
+                  </execution>
+                  <execution>
+                      <id>default-testCompile</id>
+                      <configuration>
+                          <annotationProcessors>
+                              <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+                          </annotationProcessors>
+                          <generatedTestSourcesDirectory>${project.basedir}/src/test/generated</generatedTestSourcesDirectory>
+                          <compilerArgs>
+                              <arg>-AoutputDirectory=${project.basedir}/src/test</arg>
+                          </compilerArgs>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.20.1</version>

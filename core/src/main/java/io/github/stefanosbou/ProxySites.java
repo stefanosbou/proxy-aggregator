@@ -1,6 +1,6 @@
 package io.github.stefanosbou;
 
-import io.github.stefanosbou.crawlers.SslProxiesCrawlerVerticle;
+import io.github.stefanosbou.verticles.crawlers.SslProxiesCrawlerVerticle;
 
 public enum ProxySites {
    SSLPROXIES("https://www.sslproxies.org", SslProxiesCrawlerVerticle.class),  //calls constructor with value 3

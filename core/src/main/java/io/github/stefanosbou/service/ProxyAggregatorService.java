@@ -4,7 +4,6 @@ import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.impl.ProxyAggregatorServiceImpl;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.ProxyGen;
-import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -12,7 +11,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
 @ProxyGen
-@VertxGen
 public interface ProxyAggregatorService {
    /**
     * Factory method for creating a {@link ProxyAggregatorService} instance.
@@ -48,13 +46,22 @@ public interface ProxyAggregatorService {
    ProxyAggregatorService addProxy(Proxy proxy, Handler<AsyncResult<Void>> handler);
 
    /**
+    * Get the most recent available proxy from backend.
+    *
+    * @param handler async result handler
+    */
+   @Fluent
+   ProxyAggregatorService getProxy(Handler<AsyncResult<Proxy>> handler);
+
+
+   /**
     * Get the certain proxy from backend by id.
     *
     * @param id      proxy id
     * @param handler async result handler
     */
-   @Fluent
-   ProxyAggregatorService getProxy(long id, Handler<AsyncResult<Proxy>> handler);
+//   @Fluent
+//   ProxyAggregatorService getProxy(long id, Handler<AsyncResult<Proxy>> handler);
 
    /**
     * Remove a proxy by id.

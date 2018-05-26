@@ -1,10 +1,14 @@
 package io.github.stefanosbou.model;
 
+import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 
+import java.util.UUID;
+
+@DataObject(generateConverter = true)
 public class Proxy {
 
    private static Vertx vertx;
@@ -17,6 +21,7 @@ public class Proxy {
       eventBus = vertx.eventBus();
    }
 
+   private String id;
    private String host;
    private int port;
    private String countryCode;
@@ -25,8 +30,25 @@ public class Proxy {
    private boolean googleEnabled;
    private boolean https;
 
-   public Job(JsonObject obj) {
-      this.address_id = UUID.randomUUID().toString();
-      _checkStatic();
+   public Proxy() {
+      this.id = UUID.randomUUID().toString();
+      System.out.println(this.id);
+//      _checkStatic();
+   }
+
+   public Proxy(JsonObject obj) {
+
+   }
+
+   public JsonObject toJson() {
+      JsonObject json = new JsonObject();
+      ProxyConverter.toJson(this, json);
+      return json;
+   }
+
+
+   @Override
+   public String toString() {
+      return "This is a Proxy with id: " + this.id;
    }
 }
