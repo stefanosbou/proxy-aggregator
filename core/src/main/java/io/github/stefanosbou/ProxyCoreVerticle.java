@@ -40,7 +40,7 @@ public class ProxyCoreVerticle  extends AbstractVerticle {
          });
       }).end();
 
-      vertx.setTimer(600000, id -> crawlProxies());
+      vertx.setTimer(60000, id -> crawlProxies());
    }
 
    private void extractProxies(String htmlBody) {
@@ -72,9 +72,9 @@ public class ProxyCoreVerticle  extends AbstractVerticle {
                .put("google", google)
                .put("https", https);
 
-            proxies.add(proxy);
-
-            eb.send("check-status", proxy);
+            eb.send("check-status", proxy, message -> {
+               proxies.add((JsonObject) message.result().body());
+            });
          }
 
       }
