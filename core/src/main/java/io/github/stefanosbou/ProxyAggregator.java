@@ -9,8 +9,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 
-import java.util.Optional;
-
 import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class ProxyAggregator {
@@ -38,11 +36,12 @@ public class ProxyAggregator {
       });
    }
 
-   public Future<Optional<Proxy>> getProxy() {
-      Future<Optional<Proxy>> future = Future.future();
+   public Future<Proxy> getProxy() {
+      Future<Proxy> future = Future.future();
       proxyAggregatorService.getProxy(r -> {
          if (r.succeeded()) {
-            future.complete(Optional.ofNullable(r.result()));
+            System.out.println(r.result().toJson());
+            future.complete(r.result());
          } else {
             future.fail(r.cause());
          }

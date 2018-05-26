@@ -42,7 +42,7 @@ public class Proxy {
 
    public JsonObject toJson() {
       JsonObject json = new JsonObject();
-      ProxyConverter.toJson(this, json);
+      json.put("id", this.id);
       return json;
    }
 

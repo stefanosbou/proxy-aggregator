@@ -1,28 +1,37 @@
 package io.github.stefanosbou;
 
 import io.github.stefanosbou.model.Proxy;
+import io.github.stefanosbou.service.ProxyAggregatorService;
+import io.github.stefanosbou.service.impl.ProxyAggregatorServiceImpl;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.serviceproxy.ProxyHelper;
 
-import java.util.Optional;
+import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class App {
    public static void main(String[] args) {
       Vertx vertx = Vertx.vertx();
+
+      // Create the client object
+      ProxyAggregatorService proxyAggregatorService = new ProxyAggregatorServiceImpl(vertx, new JsonObject());
+      // Register the handler
+      ProxyHelper.registerService(ProxyAggregatorService.class, vertx, proxyAggregatorService, EB_PROXY_AGGREGATOR_SERVICE_ADDRESS);
+
 
       ProxyAggregator proxyAggregator = new ProxyAggregator(vertx, new JsonObject());
 
       // config will contain list of sites that will be crawled. The list will be predefined
       // as each site requires different crawling technique.
 
-      Future<Optional<Proxy>> proxyFuture = proxyAggregator.getProxy(); // return most recent available proxy
-      while (true){
-         if (proxyFuture.isComplete()){
-                  System.out.println(proxyFuture.result().get().toString());
-
+      Future<Proxy> proxyFuture = proxyAggregator.getProxy(); // return most recent available proxy
+      proxyFuture.setHandler(ar -> {
+         if (ar.succeeded()) {
+            System.out.println(ar.result().toJson().encodePrettily());
          }
-      }
+      });
+
 //             System.out.printf("wait for answer done. Answer is: %s", pr.toJson());
 
 //      System.out.println(proxyFuture.result().toString());
