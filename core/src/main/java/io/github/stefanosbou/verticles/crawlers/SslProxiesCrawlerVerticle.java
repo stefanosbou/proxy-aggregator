@@ -45,7 +45,7 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
          });
       }).end();
 
-      vertx.setTimer(600000, id -> crawlProxies());
+      vertx.setTimer(60000, id -> crawlProxies());
    }
 
    private void extractProxies(String htmlBody) {

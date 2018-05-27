@@ -1,0 +1,2 @@
+/*C3*/SET SCHEMA PUBLIC
+CREATE TABLE IF NOT EXISTS Proxy ("id" varchar(100), "name" varchar(100), "origin" varchar(100))

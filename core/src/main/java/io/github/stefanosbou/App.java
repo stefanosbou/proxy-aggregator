@@ -3,6 +3,9 @@ package io.github.stefanosbou;
 import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.ProxyAggregatorService;
 import io.github.stefanosbou.service.impl.ProxyAggregatorServiceImpl;
+import io.vertx.config.ConfigRetriever;
+import io.vertx.config.ConfigRetrieverOptions;
+import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -19,20 +22,42 @@ public class App {
       // Register the handler
       ProxyHelper.registerService(ProxyAggregatorService.class, vertx, proxyAggregatorService, EB_PROXY_AGGREGATOR_SERVICE_ADDRESS);
 
+      ConfigStoreOptions file = new ConfigStoreOptions()
+         .setType("file")
+         .setFormat("json")
+         .setConfig(new JsonObject().put("path", "src/conf/config.json"));
+      ConfigRetrieverOptions options = new ConfigRetrieverOptions()
+         .addStore(file);
+      ConfigRetriever retriever = ConfigRetriever.create(vertx, options);
+//      ConfigRetriever retriever = ConfigRetriever.create(vertx);
 
-      ProxyAggregator proxyAggregator = new ProxyAggregator(vertx, new JsonObject());
+      Future<JsonObject> future = ConfigRetriever.getConfigAsFuture(retriever);
+
+      future.setHandler(ar0 -> {
+         if (ar0.failed()) {
+            // Failed to retrieve the configuration
+            System.out.println(ar0.cause().getMessage());
+            return;
+         } else {
+            JsonObject config = ar0.result();
+            ProxyAggregator proxyAggregator = new ProxyAggregator(vertx, config);
+
+            Future<Proxy> proxyFuture = proxyAggregator.getProxy(); // return most recent available proxy
+            proxyFuture.setHandler(ar -> {
+               if (ar.succeeded()) {
+                  System.out.println(ar.result().toJson().encodePrettily());
+               } else {
+                  System.out.println(ar.cause().getMessage());
+               }
+            });
+         }
+      });
+
 
       // config will contain list of sites that will be crawled. The list will be predefined
       // as each site requires different crawling technique.
 
-      Future<Proxy> proxyFuture = proxyAggregator.getProxy(); // return most recent available proxy
-      proxyFuture.setHandler(ar -> {
-         if (ar.succeeded()) {
-            System.out.println(ar.result().toJson().encodePrettily());
-         } else {
-            System.out.println(ar.cause().getMessage());
-         }
-      });
+
 
 //             System.out.printf("wait for answer done. Answer is: %s", pr.toJson());
 

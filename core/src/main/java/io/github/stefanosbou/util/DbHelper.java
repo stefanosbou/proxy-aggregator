@@ -36,8 +36,12 @@ public final class DbHelper {
     */
    public static JsonObject options(JsonObject config) {
       return new JsonObject()
-         .put("url", config.getString("url", "jdbc:hsqldb:file:test"))
+         .put("url", config.getString("url", "jdbc:hsqldb:file:db/test"))
+//         .put("url", config.getString("url", "jdbc:mysql://localhost/test"))
          .put("driver_class", config.getString("driver_class", "org.hsqldb.jdbcDriver"))
+//         .put("driver_class", config.getString("driver_class", "com.mysql.jdbc.Driver"))
+//         .put("user", "root")
+//         .put("password", "root")
          .put("max_pool_size", config.getInteger("max_pool_size", 30));
    }
 
