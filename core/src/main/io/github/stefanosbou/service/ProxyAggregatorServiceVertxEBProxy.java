@@ -16,20 +16,29 @@
 
 package io.github.stefanosbou.service;
 
-import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.ProxyAggregatorService;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.json.JsonArray;
+import io.vertx.core.Vertx;
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.function.Function;
+import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
-
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import io.github.stefanosbou.service.ProxyAggregatorService;
+import java.util.List;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import io.github.stefanosbou.model.Proxy;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 
 /*
   Generated Proxy code - DO NOT EDIT
@@ -78,7 +87,7 @@ public class ProxyAggregatorServiceVertxEBProxy implements ProxyAggregatorServic
   }
 
   @Override
-  public ProxyAggregatorService getProxy(Handler<AsyncResult<JsonObject>> handler) {
+  public ProxyAggregatorService getProxy(Handler<AsyncResult<Proxy>> handler) {
     if (closed) {
     handler.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -90,7 +99,30 @@ public class ProxyAggregatorServiceVertxEBProxy implements ProxyAggregatorServic
       if (res.failed()) {
         handler.handle(Future.failedFuture(res.cause()));
       } else {
-        handler.handle(Future.succeededFuture(res.result().body()));
+        handler.handle(Future.succeededFuture(res.result().body() == null ? null : new Proxy(res.result().body())));
+                      }
+    });
+    return this;
+  }
+
+  @Override
+  public ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler) {
+    if (closed) {
+    handler.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
+      return this;
+    }
+    JsonObject _json = new JsonObject();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "getProxies");
+    _vertx.eventBus().<JsonArray>send(_address, _json, _deliveryOptions, res -> {
+      if (res.failed()) {
+        handler.handle(Future.failedFuture(res.cause()));
+      } else {
+        handler.handle(Future.succeededFuture(res.result().body().stream()
+            .map(o -> { if (o == null) return null;
+                        return o instanceof Map ? new Proxy(new JsonObject((Map) o)) : new Proxy((JsonObject) o);
+                 })
+            .collect(Collectors.toList())));
       }
     });
     return this;

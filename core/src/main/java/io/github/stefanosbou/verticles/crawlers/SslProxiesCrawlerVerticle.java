@@ -78,14 +78,14 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
                .put("https", https);
 
             Proxy proxy = new Proxy(obj);
-//            proxy.save();
-//            service.addProxy(proxy, res ->{
-//               if (res.succeeded()) {
-//                  System.out.println("Successfully added");
-//               } else {
-//                  // error
-//               }
-//            });
+            service.addProxy(proxy, res -> {
+               if (res.succeeded()) {
+                  System.out.println("Successfully added");
+               } else {
+                  // error
+                  System.out.println(res.cause().getMessage());
+               }
+            });
          }
 
       }

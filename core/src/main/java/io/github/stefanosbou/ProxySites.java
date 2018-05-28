@@ -23,5 +23,11 @@ public enum ProxySites {
       return this.aClass;
    }
 
-
+   static public ProxySites lookup(String id) throws Exception {
+      if (ProxySites.valueOf(id) != null) {
+         return ProxySites.valueOf(id);
+      } else {
+         throw new Exception("Website not found");
+      }
+   }
 }

@@ -27,8 +27,56 @@ import io.vertx.core.json.JsonArray;
 public class ProxyConverter {
 
   public static void fromJson(JsonObject json, Proxy obj) {
+    if (json.getValue("anonymity") instanceof String) {
+      obj.setAnonymity((String)json.getValue("anonymity"));
+    }
+    if (json.getValue("country") instanceof String) {
+      obj.setCountry((String)json.getValue("country"));
+    }
+    if (json.getValue("countryCode") instanceof String) {
+      obj.setCountryCode((String)json.getValue("countryCode"));
+    }
+    if (json.getValue("googleEnabled") instanceof String) {
+      obj.setGoogleEnabled((String)json.getValue("googleEnabled"));
+    }
+    if (json.getValue("host") instanceof String) {
+      obj.setHost((String)json.getValue("host"));
+    }
+    if (json.getValue("https") instanceof String) {
+      obj.setHttps((String)json.getValue("https"));
+    }
+    if (json.getValue("idt") instanceof String) {
+      obj.setIdt((String)json.getValue("idt"));
+    }
+    if (json.getValue("port") instanceof String) {
+      obj.setPort((String)json.getValue("port"));
+    }
   }
 
   public static void toJson(Proxy obj, JsonObject json) {
+    if (obj.isAnonymity() != null) {
+      json.put("anonymity", obj.isAnonymity());
+    }
+    if (obj.getCountry() != null) {
+      json.put("country", obj.getCountry());
+    }
+    if (obj.getCountryCode() != null) {
+      json.put("countryCode", obj.getCountryCode());
+    }
+    if (obj.isGoogleEnabled() != null) {
+      json.put("googleEnabled", obj.isGoogleEnabled());
+    }
+    if (obj.getHost() != null) {
+      json.put("host", obj.getHost());
+    }
+    if (obj.isHttps() != null) {
+      json.put("https", obj.isHttps());
+    }
+    if (obj.getId() != null) {
+      json.put("id", obj.getId());
+    }
+    if (obj.getPort() != null) {
+      json.put("port", obj.getPort());
+    }
   }
 }

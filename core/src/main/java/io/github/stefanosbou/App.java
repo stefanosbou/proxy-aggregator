@@ -11,6 +11,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
+import java.util.List;
+
 import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class App {
@@ -42,10 +44,10 @@ public class App {
             JsonObject config = ar0.result();
             ProxyAggregator proxyAggregator = new ProxyAggregator(vertx, config);
 
-            Future<Proxy> proxyFuture = proxyAggregator.getProxy(); // return most recent available proxy
+            Future<List<Proxy>> proxyFuture = proxyAggregator.getProxies(); // return most recent available proxy
             proxyFuture.setHandler(ar -> {
                if (ar.succeeded()) {
-                  System.out.println(ar.result().toJson().encodePrettily());
+                  System.out.println(ar.result());
                } else {
                   System.out.println(ar.cause().getMessage());
                }

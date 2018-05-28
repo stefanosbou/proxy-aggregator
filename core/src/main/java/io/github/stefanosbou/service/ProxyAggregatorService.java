@@ -10,6 +10,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
+import java.util.List;
+
 @ProxyGen
 public interface ProxyAggregatorService {
    /**
@@ -53,7 +55,13 @@ public interface ProxyAggregatorService {
    @Fluent
    ProxyAggregatorService getProxy(Handler<AsyncResult<Proxy>> handler);
 
-
+   /**
+    * Get a list of available proxy from backend.
+    *
+    * @param handler async result handler
+    */
+   @Fluent
+   ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler);
    /**
     * Get the certain proxy from backend by id.
     *

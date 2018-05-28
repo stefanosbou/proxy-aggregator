@@ -10,6 +10,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 
+import java.util.List;
+
 import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class ProxyAggregator {
@@ -36,20 +38,38 @@ public class ProxyAggregator {
    }
 
    private void deployCrawlerVerticle(String crawlerName, boolean isWorker) {
-      vertx.deployVerticle(ProxySites.valueOf(crawlerName.toUpperCase()).getaClass(), new DeploymentOptions().setWorker(isWorker), r0 -> {
-         if (r0.succeeded()) {
-            System.out.println("Successfully deployed crawler for " + ProxySites.valueOf(crawlerName.toUpperCase()).getUrl());
-         } else {
-            // error
-         }
-      });
+      try {
+         vertx.deployVerticle(ProxySites.lookup(crawlerName.toUpperCase()).getaClass(), new DeploymentOptions().setWorker(isWorker), r0 -> {
+            if (r0.succeeded()) {
+               System.out.println("Successfully deployed crawler for " + ProxySites.valueOf(crawlerName.toUpperCase()).getUrl());
+            } else {
+               // error
+               System.out.println(r0.cause().getMessage());
+            }
+         });
+      } catch (Exception e) {
+         System.out.println(e.getMessage());
+      }
    }
 
    public Future<Proxy> getProxy() {
       Future<Proxy> future = Future.future();
       proxyAggregatorService.getProxy(r -> {
          if (r.succeeded()) {
-            System.out.println(r.result().toJson());
+//            System.out.println(r.result().toJson());
+            future.complete(r.result());
+         } else {
+            future.fail(r.cause());
+         }
+      });
+      return future;
+   }
+
+   public Future<List<Proxy>> getProxies() {
+      Future<List<Proxy>> future = Future.future();
+      proxyAggregatorService.getProxies(r -> {
+         if (r.succeeded()) {
+//            System.out.println(r.result().toJson());
             future.complete(r.result());
          } else {
             future.fail(r.cause());

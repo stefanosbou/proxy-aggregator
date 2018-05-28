@@ -13,6 +13,8 @@ import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.sql.SQLConnection;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
@@ -39,8 +41,16 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
          if (conn.succeeded()) {
             SQLConnection connection = conn.result();
 
-            String sql = "CREATE TABLE IF NOT EXISTS Proxy (\"id\" varchar(100), \"name\" varchar(100), " +
-               "\"origin\" varchar(100))";
+            String sql = "CREATE TABLE IF NOT EXISTS Proxy " +
+               "(\"id\" varchar(100), " +
+               "\"host\" varchar(100), " +
+               "\"port\" varchar(100), " +
+               "\"country_code\" varchar(100)," +
+               "\"country\" varchar(100)," +
+               "\"anonymity\" varchar(100)," +
+               "\"google\" varchar(100)," +
+               "\"https\" varchar(100)" +
+               ")";
             connection.execute(sql, res -> {
                if (res.succeeded()) {
 //                  createSomeData();
@@ -71,7 +81,30 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
 
    @Override
    public ProxyAggregatorService addProxy(Proxy proxy, Handler<AsyncResult<Void>> handler) {
-      return null;
+      String sql = "INSERT INTO Proxy (\"id\", \"host\", \"port\", \"country_code\", \"country\", \"anonymity\", \"google\", \"https\") " +
+         "VALUES ?, ?, ?, ?, ?, ?, ?, ?";
+      this.client.getConnection(conn -> {
+         if (conn.succeeded()) {
+            SQLConnection connection = conn.result();
+            connection.updateWithParams(sql,
+               new JsonArray()
+                  .add(proxy.getId())
+                  .add(proxy.getHost())
+                  .add(proxy.getPort())
+                  .add(proxy.getCountryCode())
+                  .add(proxy.getCountry())
+                  .add(proxy.isAnonymity())
+                  .add(proxy.isGoogleEnabled())
+                  .add(proxy.isHttps()), ar -> {
+               if (ar.succeeded()) {
+                  System.out.println("Successfully inserted data");
+               } else {
+                  System.out.println("Error inserting data " + ar.cause().getMessage());
+               }
+            });
+         }
+      });
+      return this;
    }
 
    @Override
@@ -83,24 +116,39 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
             connection.query(sql, res -> {
                if (res.succeeded()) {
                   ResultSet resultSet = res.result();
-                  System.out.println(resultSet.getRows().get(0).encodePrettily());
-                  handler.handle(Future.succeededFuture(new Proxy(resultSet.getRows().get(0))));
+//                  System.out.println(resultSet.getRows().get(0).encodePrettily());
+                  handler.handle(Future.succeededFuture(new Proxy(resultSet.getRows().get(1))));
                } else {
                   System.out.println(res.cause().getMessage());
                   handler.handle(Future.failedFuture(res.cause()));
                }
-
             });
          }
       });
-//      client.query(sql, res -> {
-//         if (res.succeeded()){
-////            handler.handle(Future.succeededFuture(res.result()));
-//
-//         } else {
-//            handler.handle(Future.failedFuture(res.cause()));
-//         }
-//      });
+      return this;
+   }
+
+   @Override
+   public ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler) {
+      String sql = "SELECT * FROM Proxy";
+      client.getConnection(conn -> {
+         if (conn.succeeded()) {
+            SQLConnection connection = conn.result();
+            connection.query(sql, res -> {
+               if (res.succeeded()) {
+                  ResultSet resultSet = res.result();
+                  List<Proxy> proxies = new ArrayList<>();
+                  for(JsonObject obj : resultSet.getRows()) {
+                     proxies.add(new Proxy(obj));
+                  }
+                  handler.handle(Future.succeededFuture(proxies));
+               } else {
+                  System.out.println(res.cause().getMessage());
+                  handler.handle(Future.failedFuture(res.cause()));
+               }
+            });
+         }
+      });
       return this;
    }
 

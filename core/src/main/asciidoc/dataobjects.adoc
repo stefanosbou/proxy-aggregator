@@ -8,5 +8,14 @@
 [frame="topbot"]
 |===
 ^|Name | Type ^| Description
+|[[anonymity]]`anonymity`|`String`|-
+|[[country]]`country`|`String`|-
+|[[countryCode]]`countryCode`|`String`|-
+|[[googleEnabled]]`googleEnabled`|`String`|-
+|[[host]]`host`|`String`|-
+|[[https]]`https`|`String`|-
+|[[id]]`id`|`String`|-
+|[[idt]]`idt`|`String`|-
+|[[port]]`port`|`String`|-
 |===
 
