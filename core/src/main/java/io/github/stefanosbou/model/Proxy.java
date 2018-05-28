@@ -42,39 +42,22 @@ public class Proxy {
    }
 
    public Proxy() {
-//      byte[] thedigest = md.digest(bytesOfMessage);
-
-//      this.id = UUID.randomUUID().toString();
-      System.out.println(this.id);
 //      _checkStatic();
    }
 
    public Proxy(JsonObject json) {
       ProxyConverter.fromJson(json, this);
-      this.host            = json.getString("host");
-      this.port            = json.getString("port");
-      this.countryCode     = json.getString("country_code");
-      this.country         = json.getString("country");
-      this.anonymity       = json.getString("anonymity");
-      this.googleEnabled   = json.getString("google");
-      this.https           = json.getString("https");
 
-      String _id = this.getHost() + ":" + this.getPort();
-      this.id              = json.getString("id", String.format("%032X", new BigInteger(1, md.digest(_id.getBytes()))));
+      // If Json has 'id' field then use this value, else generate and use MD5 hash using '<HOST><PORT>'.
+      this.id              = json.getString("id",
+         String.format("%032X", new BigInteger(1, md.digest((this.getHost() + this.getPort()).getBytes()))));
 //      _checkStatic();
-
    }
 
    public JsonObject toJson() {
       JsonObject json = new JsonObject();
-      json.put("id", this.id);
-      json.put("host", this.host)
-         .put("port", this.port)
-         .put("country_code", this.countryCode)
-         .put("country", this.country)
-         .put("anonymity", this.anonymity)
-         .put("google", this.googleEnabled)
-         .put("https", this.https);
+      ProxyConverter.toJson(this, json);
+
       return json;
    }
 
@@ -88,7 +71,7 @@ public class Proxy {
       return id;
    }
 
-   public void setIdt(String id) {
+   public void setId(String id) {
       this.id = id;
    }
    public String getHost() {

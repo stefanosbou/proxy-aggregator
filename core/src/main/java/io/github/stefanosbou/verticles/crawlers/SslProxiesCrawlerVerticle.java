@@ -71,10 +71,10 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
 
             obj.put("host", host)
                .put("port", port)
-               .put("country_code", countryCode)
+               .put("countryCode", countryCode)
                .put("country", country)
                .put("anonymity", anonymity)
-               .put("google", google)
+               .put("googleEnabled", google)
                .put("https", https);
 
             Proxy proxy = new Proxy(obj);
