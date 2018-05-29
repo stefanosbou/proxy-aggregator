@@ -29,6 +29,11 @@
           <artifactId>vertx-web</artifactId>
           <version>3.5.1</version>
       </dependency>
+      <dependency>
+          <groupId>io.github.stefanosbou</groupId>
+          <artifactId>proxy-scraper-core</artifactId>
+          <version>1.0-SNAPSHOT</version>
+      </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
