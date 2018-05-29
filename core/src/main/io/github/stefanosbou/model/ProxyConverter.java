@@ -45,8 +45,8 @@ public class ProxyConverter {
     if (json.getValue("https") instanceof String) {
       obj.setHttps((String)json.getValue("https"));
     }
-    if (json.getValue("idt") instanceof String) {
-      obj.setIdt((String)json.getValue("idt"));
+    if (json.getValue("id") instanceof String) {
+      obj.setId((String)json.getValue("id"));
     }
     if (json.getValue("port") instanceof String) {
       obj.setPort((String)json.getValue("port"));
