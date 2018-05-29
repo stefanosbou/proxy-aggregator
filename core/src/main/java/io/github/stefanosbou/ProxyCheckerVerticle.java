@@ -5,9 +5,7 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.ProxyOptions;
 
@@ -20,6 +18,15 @@ public class ProxyCheckerVerticle extends AbstractVerticle {
 
       MessageConsumer<JsonObject> consumer = eb.consumer("check-status");
       consumer.handler(this::handleProxyStatusCheck);
+
+      vertx.createHttpServer().requestHandler(req -> {
+         System.out.println("###########");
+         System.out.println(req.remoteAddress().host());
+         System.out.println("------------");
+         req.headers().entries().stream().map((e) -> e.getKey() + ":" + e.getValue()).forEach(System.out::println);
+         System.out.println("###########");
+         req.response().end(req.remoteAddress().host());
+      }).listen(9999);
 
       future.complete();
    }
@@ -34,20 +41,20 @@ public class ProxyCheckerVerticle extends AbstractVerticle {
          .setProxyOptions(new ProxyOptions()
             .setHost(host)
             .setPort(port))
-         .setSsl(https)
+//         .setSsl(https)
       );
 
-      client.requestAbs(HttpMethod.GET, "http://ifconfig.co/ip", response -> {
+      client.getNow(9999, "46.177.170.112", "/", response -> {
          if (response.statusCode() == 200) {
             response.bodyHandler(body -> {
                String res = body.toString().trim();
-//            System.out.println(res + " -> "  + host + " " + (host.equals(res) ? "active" : "inactive"));
+            System.out.println(res + " -> "  + host + " " + (host.equals(res) ? "active" : "inactive"));
                JsonObject obj = message.body();
                obj.put("status", (host.equals(res) ? "active" : "inactive"));
                message.reply(obj);
             });
          }
-      }).end();
+      });
 
    }
 }
