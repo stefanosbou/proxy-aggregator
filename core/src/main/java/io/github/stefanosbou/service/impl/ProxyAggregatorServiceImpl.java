@@ -98,6 +98,7 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                   .add(proxy.isHttps()), ar -> {
                if (ar.succeeded()) {
                   System.out.println("Successfully inserted data");
+                  connection.close();
                } else {
                   System.out.println("Error inserting data " + ar.cause().getMessage());
                }

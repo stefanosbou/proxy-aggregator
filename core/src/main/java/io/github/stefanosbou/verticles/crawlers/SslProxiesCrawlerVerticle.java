@@ -83,7 +83,7 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
                   System.out.println("Successfully added");
                } else {
                   // error
-                  System.out.println(res.cause().getMessage());
+                  System.out.println("HERE " + res.cause().getMessage());
                }
             });
          }

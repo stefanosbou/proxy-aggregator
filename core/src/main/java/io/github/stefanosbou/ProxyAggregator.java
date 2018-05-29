@@ -10,25 +10,47 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
 public class ProxyAggregator {
 
+   private static ProxyAggregator proxyAggregator = null;
    private final JsonObject config;
    private final Vertx vertx;
    private final ProxyAggregatorService proxyAggregatorService;
    private final SQLClient client;
 
-   public ProxyAggregator(Vertx vertx, JsonObject config) {
+   private ProxyAggregator(Vertx vertx, JsonObject config, Boolean enableCrawling) {
       this.vertx = vertx;
       this.config = config;
       this.proxyAggregatorService = ProxyAggregatorService.createProxy(vertx, EB_PROXY_AGGREGATOR_SERVICE_ADDRESS);
       this.client = DbHelper.client(vertx, config);
       Proxy.setVertx(vertx, DbHelper.client(vertx, config)); // init static vertx instance inner job
-      System.out.println(this.config.getJsonArray("websites"));
-      deployCrawlers(this.config.getJsonArray("websites"));
+
+      if (enableCrawling) {
+         deployCrawlers(this.config.getJsonArray("websites"));
+      }
+   }
+
+   public static ProxyAggregator init(Vertx vertx) {
+      JsonArray array = new JsonArray(Arrays.asList(Arrays.stream(ProxySites.values()).map(Enum::name)
+         .collect(Collectors.toList()).toArray()));
+
+      if (proxyAggregator == null) {
+         proxyAggregator = new ProxyAggregator(vertx, new JsonObject().put("websites", array), true);
+      }
+      return proxyAggregator;
+   }
+
+   public static ProxyAggregator init(Vertx vertx, JsonObject config, Boolean enableCrawling) {
+      if (proxyAggregator == null) {
+         proxyAggregator = new ProxyAggregator(vertx, config, enableCrawling);
+      }
+      return proxyAggregator;
    }
 
    private void deployCrawlers(JsonArray array) {
