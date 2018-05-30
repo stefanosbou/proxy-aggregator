@@ -5,6 +5,7 @@ import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.ProxyAggregatorService;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
@@ -18,15 +19,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
+import static io.github.stefanosbou.verticles.ProxyCheckerVerticle.EB_PROXY_CHECKER_SERVICE_ADDRESS;
 
 public class SslProxiesCrawlerVerticle extends AbstractVerticle {
 
-   private final String PROXY_WEBSITE = ProxySites.SSLPROXIES.getUrl();
-   Set<JsonObject> proxies;
-   ProxyAggregatorService service;
+   private static final String PROXY_WEBSITE = ProxySites.SSLPROXIES.getUrl();
+   private Set<JsonObject> proxies;
+   private ProxyAggregatorService service;
+   private EventBus eb;
 
    @Override
    public void start(Future<Void> future) {
+      eb = vertx.eventBus();
       service = ProxyAggregatorService.createProxy(vertx, EB_PROXY_AGGREGATOR_SERVICE_ADDRESS);
 
       proxies = new HashSet<>();
@@ -78,16 +82,21 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
                .put("https", https);
 
             Proxy proxy = new Proxy(obj);
-            service.addProxy(proxy, res -> {
-               if (res.succeeded()) {
-                  System.out.println("Successfully added");
-               } else {
-                  // error
-                  System.out.println("HERE " + res.cause().getMessage());
-               }
+
+            eb.send(EB_PROXY_CHECKER_SERVICE_ADDRESS, proxy, message -> {
+               proxies.add((JsonObject) message.result().body());
+
+               service.addProxy(proxy, res -> {
+                  if (res.succeeded()) {
+
+                     System.out.println("Successfully added");
+                  } else {
+                     // error
+                     System.out.println("HERE " + res.cause().getMessage());
+                  }
+               });
             });
          }
-
       }
       System.out.println("Total proxies in the list: " + proxies.size());
    }
