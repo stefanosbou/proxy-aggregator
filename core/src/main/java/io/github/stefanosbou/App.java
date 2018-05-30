@@ -1,5 +1,6 @@
 package io.github.stefanosbou;
 
+import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.ProxyAggregatorService;
 import io.github.stefanosbou.service.impl.ProxyAggregatorServiceImpl;
 import io.vertx.config.ConfigRetriever;
@@ -9,6 +10,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
+
+import java.util.List;
 
 import static io.github.stefanosbou.verticles.ProxyAggregatorVerticle.EB_PROXY_AGGREGATOR_SERVICE_ADDRESS;
 
@@ -39,16 +42,16 @@ public class App {
             return;
          } else {
             JsonObject config = ar0.result();
-            ProxyAggregator proxyAggregator = ProxyAggregator.init(vertx);
+            ProxyAggregator proxyAggregator = ProxyAggregator.init(vertx, config, false);
 
-//            Future<List<Proxy>> proxyFuture = proxyAggregator.getProxies(); // return most recent available proxy
-//            proxyFuture.setHandler(ar -> {
-//               if (ar.succeeded()) {
-//                  System.out.println(ar.result());
-//               } else {
-//                  System.out.println(ar.cause().getMessage());
-//               }
-//            });
+            Future<List<Proxy>> proxyFuture = proxyAggregator.getProxies(); // return most recent available proxy
+            proxyFuture.setHandler(ar -> {
+               if (ar.succeeded()) {
+                  System.out.println(ar.result());
+               } else {
+                  System.out.println(ar.cause().getMessage());
+               }
+            });
          }
       });
 
