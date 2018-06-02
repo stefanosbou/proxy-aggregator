@@ -15,6 +15,30 @@
 
     <!-- Custom styles for this template -->
     <link href="css/offcanvas.css" rel="stylesheet">
+    <style>
+      .dot {
+        display: inline-block;
+        border-radius: 50%;
+        width: 50%;
+        background-color: #EEE;
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+      }
+      .dot.dot-success {
+        background-color: #449D44;
+      }
+      .dot.dot-warning {
+        background-color: #F0AD4E;
+      }
+      .dot.dot-danger {
+        background-color: #D9534F;
+      }
+      .dot.dot-sm {
+        height: 10px;
+        width: 10px;
+      }
+    </style>
   </head>
 
   <body class="bg-light">
@@ -41,7 +65,16 @@
             <!--<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">-->
             <!--<strong class="d-block text-gray-dark">Port: </strong>-->
             <!--8080-->
-          <!--</p>-->
+            <!--</p>-->
+            <!--<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">-->
+              <!--<strong class="d-block text-gray-dark">Status: </strong>-->
+              <!--<span class='dot dot-sm dot-success'></span>-->
+              <!--Active-->
+            <!--</p>-->
+            <!--<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">-->
+              <!--<strong class="d-block text-gray-dark">Last Update: </strong>-->
+              <!--<span id="time" data-date="2018-06-02T10:21:18Z"></span>-->
+            <!--</p>-->
         <!--</div>-->
         <small class="d-block text-right mt-3">
           <a href="#">All updates</a>
@@ -58,16 +91,52 @@
     <script src="js/vendor/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/vendor/holder.min.js"></script>
-    <script src="offcanvas.js"></script>
+    <script src="js/vendor/moment.min.js"></script>
+    <!--<script src="offcanvas.js"></script>-->
     <script>
         $(document).ready(function() {
-            $.getJSON( "http://localhost:8080/api/proxies", function( data ) {
-                var items = [];
-                $.each(data, function( key, val ) {
-                    $("#proxy-list").append('<div class="media text-muted pt-3"> <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> <strong class="d-block text-gray-dark">Country: </strong>'+ val.country+' </p> <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> <strong class="d-block text-gray-dark">Host: </strong>'+ val.host+' </p> <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> <strong class="d-block text-gray-dark">Port: </strong>'+ val.port+' </p> </div>');
+            var divs$ = [];
+
+            function updateAllDivsInTheList() {
+                console.log("HERE");
+                $(".time").each(function (i, el) {
+                    var date = moment(new Date($(el).attr('data-date'))).utc();
+                    $(el).html(date.fromNow());
                 });
+                setInterval(updateAllDivsInTheList, 60000);
+            }
+
+            $.getJSON( "http://localhost:8080/api/proxies", function( data ) {
+                $.each(data, function( key, val ) {
+                    $("#proxy-list").append('' +
+                        '<div class="media text-muted pt-3"> ' +
+                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> ' +
+                        '<strong class="d-block text-gray-dark">Country: </strong>'+ val.country+' </p> ' +
+                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> ' +
+                        '<strong class="d-block text-gray-dark">Host: </strong>'+ val.host+' </p> ' +
+                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> ' +
+                        '<strong class="d-block text-gray-dark">Port: </strong>'+ val.port+' </p> ' +
+                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
+                        '<strong class="d-block text-gray-dark">Status: </strong>\n' +
+                        (val.status === 'active' ?
+                            '<span class=\'dot dot-sm dot-success\'></span>Active'
+                            :'<span class=\'dot dot-sm dot-danger\'></span>Inactive')
+                        +
+                        '</p>\n' +
+                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
+                        '<strong class="d-block text-gray-dark">Last Update: </strong>\n' +
+                        '<span class="time" data-date="'+ val.lastUpdate +'"></span>\n' +
+                        '</p> </div>');
+
+                });
+
+                updateAllDivsInTheList();
+                
             });
+
+
         });
+
 
     </script>
   </body>
