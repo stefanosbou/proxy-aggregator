@@ -72,8 +72,10 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                if (res.succeeded()) {
 //                  createSomeData();
                   System.out.println("Successfully created table");
+                  connection.close();
                } else {
                   System.out.println("Error while creating table " + res.cause().getMessage());
+                  connection.close();
                }
             });
          }
@@ -83,7 +85,7 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
    @Override
    public ProxyAggregatorService addProxy(Proxy proxy, Handler<AsyncResult<Void>> handler) {
       final String MYSQL_INSERT_OR_UPDATE = "INSERT INTO " + TABLE + " (`id`, `host`, `port`, `country_code`, `country`, `anonymity`, `google`, `https`, `status`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) " +
-         "ON DUPLICATE KEY UPDATE status=?";
+         "ON DUPLICATE KEY UPDATE `status`=?, `lastUpdate`=CURRENT_TIMESTAMP";
 //      String sql = "INSERT INTO Proxy (\"id\", \"host\", \"port\", \"country_code\", \"country\", \"anonymity\", \"google\", \"https\", \"status\") " +
 //         "VALUES ?, ?, ?, ?, ?, ?, ?, ?, ?";
       this.client.getConnection(conn -> {
@@ -105,8 +107,11 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                if (ar.succeeded()) {
                   System.out.println("Successfully inserted data");
                   connection.close();
+                  handler.handle(Future.succeededFuture());
                } else {
                   System.out.println("Error inserting data " + ar.cause().getMessage());
+                  connection.close();
+                  handler.handle(Future.failedFuture(ar.cause()));
                }
             });
          }
@@ -124,9 +129,11 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                if (res.succeeded()) {
                   ResultSet resultSet = res.result();
 //                  System.out.println(resultSet.getRows().get(0).encodePrettily());
+                  connection.close();
                   handler.handle(Future.succeededFuture(new Proxy(resultSet.getRows().get(1))));
                } else {
                   System.out.println(res.cause().getMessage());
+                  connection.close();
                   handler.handle(Future.failedFuture(res.cause()));
                }
             });
@@ -148,9 +155,11 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                   for(JsonObject obj : resultSet.getRows()) {
                      proxies.add(new Proxy(obj));
                   }
+                  connection.close();
                   handler.handle(Future.succeededFuture(proxies));
                } else {
                   System.out.println(res.cause().getMessage());
+                  connection.close();
                   handler.handle(Future.failedFuture(res.cause()));
                }
             });

@@ -90,9 +90,11 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
 
                   service.addProxy(proxy, res -> {
                      if (res.succeeded()) {
-                        System.out.println("Successfully added");
+//                        message.result().reply(new JsonObject());
+                        System.out.println("Successfully added " + message.result().isSend());
                      } else {
                         // error
+//                        message.result().reply(new JsonObject());
                         System.out.println("HERE " + res.cause().getMessage());
                      }
                   });
@@ -100,7 +102,7 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
             });
          }
       }
-      System.out.println("Total proxies in the list: " + proxies.size());
+//      System.out.println("Total proxies in the list: " + proxies.size());
    }
 
 }

@@ -68,25 +68,37 @@ public class ProxyCheckerVerticle extends AbstractVerticle {
 //         .setSsl(https)
       );
 
-      client.getNow(PORT, currentIPAddress, "/", response -> {
-         if (response.statusCode() == 200) {
-            response.bodyHandler(body -> {
-               String res = body.toString().trim();
-                System.out.println(res + " -> "  + host + " " + (host.equals(res) ? "active" : "inactive"));
-               JsonObject proxy = message.body();
-               proxy.put("status", (host.equals(res) ? "active" : "inactive"));
+      try {
+         client.getNow(PORT, currentIPAddress, "/", response -> {
+            if (response.statusCode() == 200) {
+               response.bodyHandler(body -> {
+                  String res = body.toString().trim();
+                  System.out.println(res + " -> " + host + " " + (host.equals(res) ? "active" : "inactive"));
+                  JsonObject proxy = message.body();
+                  proxy.put("status", (host.equals(res) ? "active" : "inactive"));
+                  message.reply(proxy);
 //               obj.put("status", (host.equals(res) ? "active" : "inactive"));
+//               message.reply(proxy, result -> {
+//                  if ( result.succeeded() ) {
+//                     System.out.println( "We answered 1" );
+//                  } else {
+//                     System.out.println( "We failed to answer 1: " + result.cause().getMessage() );
+//                  }
+//               } );
+               });
+            } else {
+               System.out.println("Status code: " + response.statusCode());
+               JsonObject proxy = message.body();
+               proxy.put("status", "inactive");
                message.reply(proxy);
-               return;
-            });
-         } else {
-            System.out.println("Status code: " + response.statusCode());
-            JsonObject proxy = message.body();
-            proxy.put("status", "inactive");
-//       obj.put("status", (host.equals(res) ? "active" : "inactive"));
-            message.reply(proxy);
-         }
-      });
+            }
+         });
+      } catch (Exception e) {
+         JsonObject proxy = message.body();
+         proxy.put("status", "inactive");
+         message.reply(proxy);
+         System.out.println("Exception in " + this.getClass().getName()+ ": " + e.getMessage());
+      }
 
    }
 }
