@@ -15,13 +15,40 @@ import io.vertx.ext.sql.SQLConnection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
 
    private final Vertx vertx;
    private final JsonObject config;
    private final SQLClient client;
+
+   private static final String TABLE = "proxy";
+
+   private static final String HSQLDB_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + " " +
+      "(\"id\" varchar(100), " +
+      "\"host\" varchar(100), " +
+      "\"port\" varchar(100), " +
+      "\"country_code\" varchar(100)," +
+      "\"country\" varchar(100)," +
+      "\"anonymity\" varchar(100)," +
+      "\"google\" varchar(100)," +
+      "\"https\" varchar(100)," +
+      "\"status\" varchar(100)" +
+      ")";
+
+   private static final String MYSQL_CREATE_TABLE = "CREATE TABLE " + TABLE + " (\n" +
+      "  `id` VARCHAR(45) NOT NULL,\n" +
+      "  `host` VARCHAR(45) NULL,\n" +
+      "  `port` VARCHAR(45) NULL,\n" +
+      "  `country_code` VARCHAR(45) NULL,\n" +
+      "  `country` VARCHAR(45) NULL,\n" +
+      "  `anonymity` VARCHAR(45) NULL,\n" +
+      "  `google` VARCHAR(45) NULL,\n" +
+      "  `https` VARCHAR(45) NULL,\n" +
+      "  `status` VARCHAR(45) NULL,\n" +
+      "  `lastUpdate` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
+      "  PRIMARY KEY (`id`),\n" +
+      "  UNIQUE INDEX `id_UNIQUE` (`id` ASC));";
 
    public ProxyAggregatorServiceImpl(Vertx vertx) {
       this(vertx, new JsonObject());
@@ -41,17 +68,7 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
          if (conn.succeeded()) {
             SQLConnection connection = conn.result();
 
-            String sql = "CREATE TABLE IF NOT EXISTS Proxy " +
-               "(\"id\" varchar(100), " +
-               "\"host\" varchar(100), " +
-               "\"port\" varchar(100), " +
-               "\"country_code\" varchar(100)," +
-               "\"country\" varchar(100)," +
-               "\"anonymity\" varchar(100)," +
-               "\"google\" varchar(100)," +
-               "\"https\" varchar(100)" +
-               ")";
-            connection.execute(sql, res -> {
+            connection.execute(MYSQL_CREATE_TABLE, res -> {
                if (res.succeeded()) {
 //                  createSomeData();
                   System.out.println("Successfully created table");
@@ -63,30 +80,16 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
       });
    }
 
-   private void createSomeData() {
-      String sql = "INSERT INTO Proxy (\"id\", \"name\", \"origin\") VALUES ?, ?, ?";
-      this.client.getConnection(conn -> {
-            if (conn.succeeded()) {
-               SQLConnection connection = conn.result();
-               connection.updateWithParams(sql, new JsonArray().add(UUID.randomUUID().toString()).add("testName").add("testOrigin"), ar -> {
-                  if (ar.succeeded()) {
-                     System.out.println("Successfully inserted data");
-                  } else {
-                     System.out.println("Error inserting data " + ar.cause().getMessage());
-                  }
-               });
-            }
-      });
-   }
-
    @Override
    public ProxyAggregatorService addProxy(Proxy proxy, Handler<AsyncResult<Void>> handler) {
-      String sql = "INSERT INTO Proxy (\"id\", \"host\", \"port\", \"country_code\", \"country\", \"anonymity\", \"google\", \"https\") " +
-         "VALUES ?, ?, ?, ?, ?, ?, ?, ?";
+      final String MYSQL_INSERT_OR_UPDATE = "INSERT INTO " + TABLE + " (`id`, `host`, `port`, `country_code`, `country`, `anonymity`, `google`, `https`, `status`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+         "ON DUPLICATE KEY UPDATE status=?";
+//      String sql = "INSERT INTO Proxy (\"id\", \"host\", \"port\", \"country_code\", \"country\", \"anonymity\", \"google\", \"https\", \"status\") " +
+//         "VALUES ?, ?, ?, ?, ?, ?, ?, ?, ?";
       this.client.getConnection(conn -> {
          if (conn.succeeded()) {
             SQLConnection connection = conn.result();
-            connection.updateWithParams(sql,
+            connection.updateWithParams(MYSQL_INSERT_OR_UPDATE,
                new JsonArray()
                   .add(proxy.getId())
                   .add(proxy.getHost())
@@ -95,7 +98,10 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                   .add(proxy.getCountry())
                   .add(proxy.isAnonymity())
                   .add(proxy.isGoogleEnabled())
-                  .add(proxy.isHttps()), ar -> {
+                  .add(proxy.isHttps())
+                  .add(proxy.getStatus())
+                  .add(proxy.getStatus()
+                  ), ar -> {
                if (ar.succeeded()) {
                   System.out.println("Successfully inserted data");
                   connection.close();
@@ -110,7 +116,7 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
 
    @Override
    public ProxyAggregatorService getProxy(Handler<AsyncResult<Proxy>> handler) {
-      String sql = "SELECT * FROM Proxy";
+      String sql = "SELECT * FROM " + TABLE;
       client.getConnection(conn -> {
          if (conn.succeeded()) {
             SQLConnection connection = conn.result();
@@ -131,7 +137,7 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
 
    @Override
    public ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler) {
-      String sql = "SELECT * FROM Proxy";
+      String sql = "SELECT * FROM " + TABLE + " ORDER BY lastUpdate DESC";
       client.getConnection(conn -> {
          if (conn.succeeded()) {
             SQLConnection connection = conn.result();

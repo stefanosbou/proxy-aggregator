@@ -91,7 +91,6 @@ public class ProxyAggregator {
       Future<List<Proxy>> future = Future.future();
       proxyAggregatorService.getProxies(r -> {
          if (r.succeeded()) {
-//            System.out.println(r.result().toJson());
             future.complete(r.result());
          } else {
             future.fail(r.cause());

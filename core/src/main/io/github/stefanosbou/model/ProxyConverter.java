@@ -48,8 +48,14 @@ public class ProxyConverter {
     if (json.getValue("id") instanceof String) {
       obj.setId((String)json.getValue("id"));
     }
+    if (json.getValue("lastUpdate") instanceof String) {
+      obj.setLastUpdate((String)json.getValue("lastUpdate"));
+    }
     if (json.getValue("port") instanceof String) {
       obj.setPort((String)json.getValue("port"));
+    }
+    if (json.getValue("status") instanceof String) {
+      obj.setStatus((String)json.getValue("status"));
     }
   }
 
@@ -75,8 +81,14 @@ public class ProxyConverter {
     if (obj.getId() != null) {
       json.put("id", obj.getId());
     }
+    if (obj.getLastUpdate() != null) {
+      json.put("lastUpdate", obj.getLastUpdate());
+    }
     if (obj.getPort() != null) {
       json.put("port", obj.getPort());
+    }
+    if (obj.getStatus() != null) {
+      json.put("status", obj.getStatus());
     }
   }
 }

@@ -81,20 +81,22 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
                .put("googleEnabled", google)
                .put("https", https);
 
-            Proxy proxy = new Proxy(obj);
 
-            eb.send(EB_PROXY_CHECKER_SERVICE_ADDRESS, proxy, message -> {
-               proxies.add((JsonObject) message.result().body());
+            eb.send(EB_PROXY_CHECKER_SERVICE_ADDRESS, obj, message -> {
+//               proxies.add((JsonObject) message.result().body());
 
-               service.addProxy(proxy, res -> {
-                  if (res.succeeded()) {
+               if (message.succeeded()) {
+                  Proxy proxy = new Proxy((JsonObject) message.result().body());
 
-                     System.out.println("Successfully added");
-                  } else {
-                     // error
-                     System.out.println("HERE " + res.cause().getMessage());
-                  }
-               });
+                  service.addProxy(proxy, res -> {
+                     if (res.succeeded()) {
+                        System.out.println("Successfully added");
+                     } else {
+                        // error
+                        System.out.println("HERE " + res.cause().getMessage());
+                     }
+                  });
+               }
             });
          }
       }

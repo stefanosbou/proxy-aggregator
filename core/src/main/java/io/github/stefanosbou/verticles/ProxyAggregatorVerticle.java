@@ -21,6 +21,14 @@ public class ProxyAggregatorVerticle extends AbstractVerticle {
       // Create the client object
       this.proxyAggregatorService = ProxyAggregatorService.create(vertx, config);
 
+      vertx.deployVerticle(new ProxyCheckerVerticle(), res -> {
+         if (res.succeeded()) {
+            System.out.println("Successfully deployed verticle ProxyCheckerVerticle");
+         } else {
+            System.out.println("Failed to deploy verticle ProxyCheckerVerticle");
+         }
+      });
+
       // create SQL client (+ init schema?)
 //      RedisClient redisClient = RedisHelper.client(vertx, config);
 //      redisClient.ping(pr -> { // test connection
@@ -40,6 +48,7 @@ public class ProxyAggregatorVerticle extends AbstractVerticle {
       // Register the handler
       ProxyHelper.registerService(ProxyAggregatorService.class, vertx, proxyAggregatorService, EB_PROXY_AGGREGATOR_SERVICE_ADDRESS);
 
+      future.complete();
    }
 
 }

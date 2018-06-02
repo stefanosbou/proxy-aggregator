@@ -31,6 +31,8 @@ public class Proxy {
    private String anonymity;
    private String googleEnabled;
    private String https;
+   private String status;
+   private String lastUpdate;
 
    MessageDigest md;
    {
@@ -128,5 +130,21 @@ public class Proxy {
 
    public void setHttps(String https) {
       this.https = https;
+   }
+
+   public String getStatus() {
+      return status;
+   }
+
+   public void setStatus(String status) {
+      this.status = status;
+   }
+
+   public String getLastUpdate() {
+      return lastUpdate;
+   }
+
+   public void setLastUpdate(String last_update) {
+      this.lastUpdate = last_update;
    }
 }
