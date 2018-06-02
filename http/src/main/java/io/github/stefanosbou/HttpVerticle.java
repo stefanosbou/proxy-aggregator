@@ -5,7 +5,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -44,7 +43,7 @@ public class HttpVerticle extends AbstractVerticle {
    @Override
    public void start(Future<Void> future) throws Exception {
       // init proxyAggregator
-      proxyAggregator = ProxyAggregator.init(vertx, new JsonObject(), false);
+      proxyAggregator = ProxyAggregator.init(vertx);
 
       // create route
       final Router router = Router.router(vertx);
@@ -99,13 +98,17 @@ public class HttpVerticle extends AbstractVerticle {
          for(Proxy proxy : list) {
             array.add(proxy.toJson());
          }
-         ctx.response().end(array.encodePrettily());
+         ctx.response()
+            .putHeader("content-type", "application/json; charset=utf-8")
+            .end(array.encodePrettily());
       });
    }
 
    private void apiGetProxy(RoutingContext ctx) {
       proxyAggregator.getProxy().setHandler(response -> {
-         ctx.response().end(response.result().toJson().encodePrettily());
+         ctx.response()
+            .putHeader("content-type", "application/json; charset=utf-8")
+            .end(response.result().toJson().encodePrettily());
       });
    }
 

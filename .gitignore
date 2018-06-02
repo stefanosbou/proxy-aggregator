@@ -6,5 +6,5 @@ core/db
 
 http/.idea
 http/target/
-http/http.iml
+http/proxy-scraper-http.iml
 
