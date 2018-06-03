@@ -25,8 +25,8 @@ public class HttpVerticle extends AbstractVerticle {
 //   private static final String KUE_API_JOB_SEARCH = "/job/search/:q";
 //   private static final String KUE_API_STATS = "/stats";
 //   private static final String KUE_API_TYPE_STATE_STATS = "/jobs/:type/:state/stats";
-   private static final String API_GET_PROXY = "/api/proxy";
-   private static final String API_GET_PROXIES = "/api/proxies";
+   private static final String API_GET_PROXY = "/api/v1/proxy";
+//   private static final String API_GET_PROXIES = "/api/proxies";
 //   private static final String KUE_API_GET_JOB_TYPES = "/job/types";
 //   private static final String KUE_API_JOB_RANGE = "/jobs/:from/to/:to";
 //   private static final String KUE_API_JOB_TYPE_RANGE = "/jobs/:type/:state/:from/to/:to/:order";
@@ -58,7 +58,7 @@ public class HttpVerticle extends AbstractVerticle {
 
       // REST API routes
       router.get(API_GET_PROXY).handler(this::apiGetProxy);
-      router.get(API_GET_PROXIES).handler(this::apiGetProxies);
+//      router.get(API_GET_PROXIES).handler(this::apiGetProxies);
 //      router.get(KUE_API_STATS).handler(this::apiStats);
 //      router.get(KUE_API_TYPE_STATE_STATS).handler(this::apiTypeStateStats);
 //      router.get(KUE_API_GET_JOB_TYPES).handler(this::apiJobTypes);
@@ -91,26 +91,66 @@ public class HttpVerticle extends AbstractVerticle {
             });
    }
 
-   private void apiGetProxies(RoutingContext ctx) {
-      proxyAggregator.getProxies().setHandler(response -> {
-         List<Proxy> list = response.result();
-         JsonArray array = new JsonArray();
-         for(Proxy proxy : list) {
-            array.add(proxy.toJson());
-         }
-         ctx.response()
-            .putHeader("content-type", "application/json; charset=utf-8")
-            .end(array.encodePrettily());
-      });
-   }
+//   private void apiGetProxies(RoutingContext ctx) {
+//      proxyAggregator.getProxies().setHandler(response -> {
+//         List<Proxy> list = response.result();
+//         JsonArray array = new JsonArray();
+//         for(Proxy proxy : list) {
+//            array.add(proxy.toJson());
+//         }
+//         ctx.response()
+//            .putHeader("content-type", "application/json; charset=utf-8")
+//            .end(array.encodePrettily());
+//      });
+//   }
 
    private void apiGetProxy(RoutingContext ctx) {
-      proxyAggregator.getProxy().setHandler(response -> {
-         ctx.response()
-            .putHeader("content-type", "application/json; charset=utf-8")
-            .end(response.result().toJson().encodePrettily());
+      int limit = optionalParam(ctx, "limit", 50);
+      if (limit > 50) {
+         limit = 50;
+      }
+      int page = optionalParam(ctx, "page", 0);
+      String status = optionalParam(ctx, "status", "all");
+      if (!status.equalsIgnoreCase("active")  &&
+         !status.equalsIgnoreCase("inactive") &&
+         !status.equalsIgnoreCase("all"))
+      {
+         status = "all";
+      }
+      String countryCode = optionalParam(ctx, "country", null);
+
+      proxyAggregator.getProxy(limit, page, status, countryCode).setHandler(response -> {
+         if (response.succeeded()) {
+            List<Proxy> list = response.result();
+            JsonArray array = new JsonArray();
+            for(Proxy proxy : list) {
+               array.add(proxy.toJson());
+            }
+            ctx.response()
+               .putHeader("content-type", "application/json; charset=utf-8")
+               .end(array.encodePrettily());
+         } else {
+            ctx.response()
+               .putHeader("content-type", "application/json; charset=utf-8")
+               .end(new JsonArray().encodePrettily());
+         }
       });
    }
 
+   private String optionalParam(RoutingContext ctx, String param, String defaultValue) {
+      String optional = ctx.request().getParam(param);
+      if (optional != null) {
+         return optional;
+      }
+      return defaultValue;
+   }
+
+   private int optionalParam(RoutingContext ctx, String param, int defaultValue) {
+      String optional = ctx.request().getParam(param);
+      if (optional != null) {
+         return Integer.parseInt(optional);
+      }
+      return defaultValue;
+   }
 
 }
