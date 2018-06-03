@@ -6,48 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../../../favicon.ico">
+    <link rel="icon" href="img/favicon.ico">
 
-    <title>Offcanvas template for Bootstrap</title>
+    <title>Proxy Aggregator</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Custom styles for this template -->
-    <link href="css/offcanvas.css" rel="stylesheet">
-    <style>
-      .dot {
-        display: inline-block;
-        border-radius: 50%;
-        width: 50%;
-        background-color: #EEE;
-        height: 15px;
-        width: 15px;
-        margin: 0 2px;
-      }
-      .dot.dot-success {
-        background-color: #449D44;
-      }
-      .dot.dot-warning {
-        background-color: #F0AD4E;
-      }
-      .dot.dot-danger {
-        background-color: #D9534F;
-      }
-      .dot.dot-sm {
-        height: 10px;
-        width: 10px;
-      }
-    </style>
+    <link href="css/style.css" rel="stylesheet">
+
   </head>
 
   <body class="bg-light">
 
-    <main role="main" class="container col-md-6">
+    <main role="main" class="container col-md-8">
       <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded box-shadow">
         <div class="lh-100">
           <h6 class="mb-0 text-white lh-100">Proxy list</h6>
-          <small>Last updated: Few seconds ago</small>
+          <small id="last-update"></small>
         </div>
       </div>
 
@@ -92,50 +68,9 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/vendor/holder.min.js"></script>
     <script src="js/vendor/moment.min.js"></script>
-    <!--<script src="offcanvas.js"></script>-->
+    <script src="js/main.js"></script>
     <script>
-        $(document).ready(function() {
-            var divs$ = [];
 
-            function updateAllDivsInTheList() {
-                console.log("HERE");
-                $(".time").each(function (i, el) {
-                    var date = moment(new Date($(el).attr('data-date'))).utc();
-                    $(el).html(date.fromNow());
-                });
-                setInterval(updateAllDivsInTheList, 60000);
-            }
-
-            $.getJSON( "http://localhost:8080/api/proxies", function( data ) {
-                $.each(data, function( key, val ) {
-                    $("#proxy-list").append('' +
-                        '<div class="media text-muted pt-3"> ' +
-                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> ' +
-                        '<strong class="d-block text-gray-dark">Country: </strong>'+ val.country+' </p> ' +
-                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> ' +
-                        '<strong class="d-block text-gray-dark">Host: </strong>'+ val.host+' </p> ' +
-                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray"> ' +
-                        '<strong class="d-block text-gray-dark">Port: </strong>'+ val.port+' </p> ' +
-                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
-                        '<strong class="d-block text-gray-dark">Status: </strong>\n' +
-                        (val.status === 'active' ?
-                            '<span class=\'dot dot-sm dot-success\'></span>Active'
-                            :'<span class=\'dot dot-sm dot-danger\'></span>Inactive')
-                        +
-                        '</p>\n' +
-                        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
-                        '<strong class="d-block text-gray-dark">Last Update: </strong>\n' +
-                        '<span class="time" data-date="'+ val.lastUpdate +'"></span>\n' +
-                        '</p> </div>');
-
-                });
-
-                updateAllDivsInTheList();
-                
-            });
-
-
-        });
 
 
     </script>
