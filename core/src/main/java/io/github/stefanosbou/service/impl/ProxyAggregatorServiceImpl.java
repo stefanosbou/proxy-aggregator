@@ -105,7 +105,7 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
                   .add(proxy.getStatus()
                   ), ar -> {
                if (ar.succeeded()) {
-                  System.out.println("Successfully inserted data");
+//                  System.out.println("Successfully inserted data");
                   connection.close();
                   handler.handle(Future.succeededFuture());
                } else {
@@ -120,31 +120,29 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
    }
 
    @Override
-   public ProxyAggregatorService getProxy(Handler<AsyncResult<Proxy>> handler) {
-      String sql = "SELECT * FROM " + TABLE;
-      client.getConnection(conn -> {
-         if (conn.succeeded()) {
-            SQLConnection connection = conn.result();
-            connection.query(sql, res -> {
-               if (res.succeeded()) {
-                  ResultSet resultSet = res.result();
-//                  System.out.println(resultSet.getRows().get(0).encodePrettily());
-                  connection.close();
-                  handler.handle(Future.succeededFuture(new Proxy(resultSet.getRows().get(1))));
-               } else {
-                  System.out.println(res.cause().getMessage());
-                  connection.close();
-                  handler.handle(Future.failedFuture(res.cause()));
-               }
-            });
-         }
-      });
-      return this;
-   }
+   public ProxyAggregatorService getProxy(int limit, int page, String status, String country, Handler<AsyncResult<List<Proxy>>> handler) {
+      String WHERE_CLAUSE;
+      if (country == null && status.equalsIgnoreCase("all")){
+         WHERE_CLAUSE = "";
+      } else if (country != null && status.equalsIgnoreCase("all")) {
+         WHERE_CLAUSE = "WHERE country_code= \'" + country + "\'";
+      } else if (country != null && !status.equalsIgnoreCase("all")) {
+         WHERE_CLAUSE = "WHERE country_code= \'" + country + "\' " +
+            "\n" +
+            "AND status=\'" + status + "\'";
+      } else {
+         WHERE_CLAUSE = "WHERE status= \'" + status + "\' ";
+      }
 
-   @Override
-   public ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler) {
-      String sql = "SELECT * FROM " + TABLE + " ORDER BY lastUpdate DESC";
+      String sql = "SELECT * FROM " + TABLE +
+         "\n" +
+         WHERE_CLAUSE +
+         "\n" +
+         "ORDER BY lastUpdate DESC " +
+         "\n" +
+         "LIMIT " + (limit * page)+ ", " + limit
+         ;
+
       client.getConnection(conn -> {
          if (conn.succeeded()) {
             SQLConnection connection = conn.result();
@@ -167,6 +165,32 @@ public class ProxyAggregatorServiceImpl implements ProxyAggregatorService{
       });
       return this;
    }
+
+//   @Override
+//   public ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler) {
+//      String sql = "SELECT * FROM " + TABLE + " ORDER BY lastUpdate DESC";
+//      client.getConnection(conn -> {
+//         if (conn.succeeded()) {
+//            SQLConnection connection = conn.result();
+//            connection.query(sql, res -> {
+//               if (res.succeeded()) {
+//                  ResultSet resultSet = res.result();
+//                  List<Proxy> proxies = new ArrayList<>();
+//                  for(JsonObject obj : resultSet.getRows()) {
+//                     proxies.add(new Proxy(obj));
+//                  }
+//                  connection.close();
+//                  handler.handle(Future.succeededFuture(proxies));
+//               } else {
+//                  System.out.println(res.cause().getMessage());
+//                  connection.close();
+//                  handler.handle(Future.failedFuture(res.cause()));
+//               }
+//            });
+//         }
+//      });
+//      return this;
+//   }
 
 //   @Override
 //   public ProxyAggregatorService getProxy(long id, Handler<AsyncResult<Proxy>> handler) {

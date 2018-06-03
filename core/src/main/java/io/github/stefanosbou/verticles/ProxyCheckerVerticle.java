@@ -9,8 +9,10 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.ProxyOptions;
+import io.vertx.core.streams.Pump;
 
 public class ProxyCheckerVerticle extends AbstractVerticle {
    public static final String EB_PROXY_CHECKER_SERVICE_ADDRESS = "vertx.proxy.checker.service";
@@ -68,37 +70,32 @@ public class ProxyCheckerVerticle extends AbstractVerticle {
 //         .setSsl(https)
       );
 
-      try {
-         client.getNow(PORT, currentIPAddress, "/", response -> {
-            if (response.statusCode() == 200) {
-               response.bodyHandler(body -> {
-                  String res = body.toString().trim();
-                  System.out.println(res + " -> " + host + " " + (host.equals(res) ? "active" : "inactive"));
-                  JsonObject proxy = message.body();
-                  proxy.put("status", (host.equals(res) ? "active" : "inactive"));
-                  message.reply(proxy);
-//               obj.put("status", (host.equals(res) ? "active" : "inactive"));
-//               message.reply(proxy, result -> {
-//                  if ( result.succeeded() ) {
-//                     System.out.println( "We answered 1" );
-//                  } else {
-//                     System.out.println( "We failed to answer 1: " + result.cause().getMessage() );
-//                  }
-//               } );
-               });
-            } else {
-               System.out.println("Status code: " + response.statusCode());
+      HttpClientRequest request = client.get(PORT, currentIPAddress, "/", response -> {
+         if (response.statusCode() == 200) {
+            response.bodyHandler(body -> {
+               String res = body.toString().trim();
+               System.out.println(res + " -> " + host + " " + (host.equals(res) ? "active" : "inactive"));
                JsonObject proxy = message.body();
-               proxy.put("status", "inactive");
+               proxy.put("status", (host.equals(res) ? "active" : "inactive"));
                message.reply(proxy);
-            }
-         });
-      } catch (Exception e) {
+            });
+         } else {
+            System.out.println("Status code: " + response.statusCode());
+            JsonObject proxy = message.body();
+            proxy.put("status", "inactive");
+            message.reply(proxy);
+         }
+      });
+
+      request.exceptionHandler(r -> {
+         System.out.println("Exception in " + this.getClass().getName()+ " : " + r.getMessage());
          JsonObject proxy = message.body();
          proxy.put("status", "inactive");
          message.reply(proxy);
-         System.out.println("Exception in " + this.getClass().getName()+ ": " + e.getMessage());
-      }
+      });
+
+      request.end();
+
 
    }
 }

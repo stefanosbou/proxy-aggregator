@@ -74,9 +74,9 @@ public class ProxyAggregator {
       }
    }
 
-   public Future<Proxy> getProxy() {
-      Future<Proxy> future = Future.future();
-      proxyAggregatorService.getProxy(r -> {
+   public Future<List<Proxy>> getProxy(int limit, int page, String status, String countryCode) {
+      Future<List<Proxy>> future = Future.future();
+      proxyAggregatorService.getProxy(limit, page, status, countryCode, r -> {
          if (r.succeeded()) {
 //            System.out.println(r.result().toJson());
             future.complete(r.result());
@@ -87,17 +87,17 @@ public class ProxyAggregator {
       return future;
    }
 
-   public Future<List<Proxy>> getProxies() {
-      Future<List<Proxy>> future = Future.future();
-      proxyAggregatorService.getProxies(r -> {
-         if (r.succeeded()) {
-            future.complete(r.result());
-         } else {
-            future.fail(r.cause());
-         }
-      });
-      return future;
-   }
+//   public Future<List<Proxy>> getProxies() {
+//      Future<List<Proxy>> future = Future.future();
+//      proxyAggregatorService.getProxies(r -> {
+//         if (r.succeeded()) {
+//            future.complete(r.result());
+//         } else {
+//            future.fail(r.cause());
+//         }
+//      });
+//      return future;
+//   }
 
 //
 //   public Future<Optional<Proxy>> getProxy(long id) {

@@ -16,36 +16,19 @@
 
 package io.github.stefanosbou.service;
 
+import io.github.stefanosbou.model.Proxy;
 import io.github.stefanosbou.service.ProxyAggregatorService;
-import io.vertx.core.Vertx;
-import io.vertx.core.Handler;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.eventbus.ReplyException;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import io.vertx.serviceproxy.ProxyHelper;
+import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHandler;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
-import io.github.stefanosbou.service.ProxyAggregatorService;
-import java.util.List;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
-import io.github.stefanosbou.model.Proxy;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+
+import java.util.stream.Collectors;
 
 /*
   Generated Proxy code - DO NOT EDIT
@@ -125,21 +108,7 @@ public class ProxyAggregatorServiceVertxProxyHandler extends ProxyHandler {
           break;
         }
         case "getProxy": {
-          service.getProxy(res -> {
-            if (res.failed()) {
-              if (res.cause() instanceof ServiceException) {
-                msg.reply(res.cause());
-              } else {
-                msg.reply(new ServiceException(-1, res.cause().getMessage()));
-              }
-            } else {
-              msg.reply(res.result() == null ? null : res.result().toJson());
-            }
-         });
-          break;
-        }
-        case "getProxies": {
-          service.getProxies(res -> {
+          service.getProxy(json.getValue("page") == null ? null : (json.getLong("page").intValue()), json.getValue("limit") == null ? null : (json.getLong("limit").intValue()), (java.lang.String)json.getValue("status"), (java.lang.String)json.getValue("country"), res -> {
             if (res.failed()) {
               if (res.cause() instanceof ServiceException) {
                 msg.reply(res.cause());

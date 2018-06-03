@@ -89,14 +89,14 @@ public class SslProxiesCrawlerVerticle extends AbstractVerticle {
                   Proxy proxy = new Proxy((JsonObject) message.result().body());
 
                   service.addProxy(proxy, res -> {
-                     if (res.succeeded()) {
-//                        message.result().reply(new JsonObject());
-                        System.out.println("Successfully added " + message.result().isSend());
-                     } else {
-                        // error
-//                        message.result().reply(new JsonObject());
-                        System.out.println("HERE " + res.cause().getMessage());
-                     }
+//                     if (res.succeeded()) {
+////                        message.result().reply(new JsonObject());
+////                        System.out.println("Successfully added " + message.result().isSend());
+//                     } else {
+//                        // error
+////                        message.result().reply(new JsonObject());
+//                        System.out.println("HERE " + res.cause().getMessage());
+//                     }
                   });
                }
             });

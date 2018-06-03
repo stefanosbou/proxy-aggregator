@@ -53,15 +53,15 @@ public interface ProxyAggregatorService {
     * @param handler async result handler
     */
    @Fluent
-   ProxyAggregatorService getProxy(Handler<AsyncResult<Proxy>> handler);
+   ProxyAggregatorService getProxy(int page, int limit, String status, String country, Handler<AsyncResult<List<Proxy>>> handler);
 
    /**
     * Get a list of available proxy from backend.
     *
     * @param handler async result handler
     */
-   @Fluent
-   ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler);
+//   @Fluent
+//   ProxyAggregatorService getProxies(Handler<AsyncResult<List<Proxy>>> handler);
    /**
     * Get the certain proxy from backend by id.
     *
